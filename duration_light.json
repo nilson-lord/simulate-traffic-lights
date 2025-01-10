@@ -1,0 +1,101 @@
+{
+    "trafficLights": [
+        { 
+            "id": 1, 
+            "greenTime": 5000, 
+            "redTime": 7000, 
+            "amberTime": 2000 
+        },
+        { 
+            "id": 2,
+             "greenTime": 6000, 
+             "redTime": 8000, 
+             "amberTime": 2500 
+        },
+        { 
+            "id": 3, 
+            "greenTime": 7000,
+             "redTime": 9000, 
+             "amberTime": 3000 
+        },
+        { 
+            "id": 4,
+             "greenTime": 4000,
+              "redTime": 6000,
+               "amberTime": 1500 
+        },
+        { 
+            "id": 5,
+            "greenTime": 5500,
+             "redTime": 7500, 
+             "amberTime": 1800 
+        },
+        { 
+            "id": 6, 
+            "greenTime": 6500,
+             "redTime": 9500,
+              "amberTime": 2200
+         },
+        { 
+            "id": 7, 
+            "greenTime": 3000,
+             "redTime": 5500,
+              "amberTime": 1200 
+        },
+        {
+             "id": 8, 
+             "greenTime": 7000,
+              "redTime": 8500,
+               "amberTime": 2500 
+        },
+        { 
+            "id": 9, 
+            "greenTime": 6000, 
+            "redTime": 8000, 
+            "amberTime": 2000 
+        },
+        {
+             "id": 10, 
+             "greenTime": 5000, 
+             "redTime": 7000, 
+             "amberTime": 1800 
+        },
+        { 
+            "id": 11, 
+            "greenTime": 4500, 
+            "redTime": 6500, 
+            "amberTime": 1500 
+        },
+        {
+             "id": 12, 
+             "greenTime": 8000,
+              "redTime": 10000, 
+              "amberTime": 3000
+        },
+        {
+             "id": 13, 
+             "greenTime": 6000,
+              "redTime": 8000,
+               "amberTime": 2500 
+        },
+        { 
+            "id": 14,
+             "greenTime": 5000,
+              "redTime": 7000,
+               "amberTime": 2000 
+        },
+        { 
+
+            "id": 15, 
+            "greenTime": 5500,
+             "redTime": 7500,
+              "amberTime": 2000 
+        },
+        { 
+            "id": 16, 
+            "greenTime": 4000,
+             "redTime": 6000, 
+             "amberTime": 1500 
+        }
+    ]
+}
