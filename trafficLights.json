@@ -1,0 +1,186 @@
+{
+    "intersection1": [
+        {
+            "id": 1,
+            "greenTime": 45000,
+            "redTime": 50000,
+            "amberTime": 5000,
+            "initialState": "green",
+            "location": {
+                "lat": -12.862963612019305,
+                "lng": -72.69359925268566
+            }
+        },
+        {
+            "id": 2,
+            "greenTime": 45000,
+            "redTime": 50000,
+            "amberTime": 5000,
+            "initialState": "red",
+            "location": {
+                "lat": -12.862925563347359,
+                "lng": -72.69360712482468
+            }
+        },
+        {
+            "id": 5,
+            "greenTime": 45000,
+            "redTime": 50000,
+            "amberTime": 5000,
+            "initialState": "red",
+            "location": {
+                "lat": -12.862957948958613,
+                "lng": -72.69356983239474
+            }
+        },
+        {
+            "id": 6,
+            "greenTime": 45000,
+            "redTime": 50000,
+            "amberTime": 5000,
+            "initialState": "green",
+            "location": {
+                "lat": -12.862920040263054,
+                "lng": -72.69357771440076
+            }
+        }
+    ],
+    "intersection2": [
+        {
+            "id": 9,
+            "greenTime": 6000,
+            "redTime": 8000,
+            "amberTime": 2000,
+            "initialState": "red",
+            "location": {
+                "lat": -12.862759035156072,
+                "lng": -72.69253645093276
+            }
+        },
+        {
+            "id": 10,
+            "greenTime": 5500,
+            "redTime": 7500,
+            "amberTime": 2000,
+            "initialState": "red",
+            "location": {
+                "lat": -12.862725955767644,
+                "lng": -72.6925442144627
+            }
+        },
+        {
+            "id": 14,
+            "greenTime": 6000,
+            "redTime": 8000,
+            "amberTime": 2000,
+            "initialState": "red",
+            "location": {
+                "lat": -12.862720444956771,
+                "lng": -72.69251486939481
+            }
+        },
+        {
+            "id": 13,
+            "greenTime": 6000,
+            "redTime": 7500,
+            "amberTime": 2500,
+            "initialState": "red",
+            "location": {
+                "lat": -12.862753385228345,
+                "lng": -72.6925070988692
+            }
+        }
+    ],
+    "intersection3": [
+        {
+            "id": 3,
+            "greenTime": 7000,
+            "redTime": 8500,
+            "amberTime": 2500,
+            "initialState": "red",
+            "location": {
+                "lat": -12.863978290401716,
+                "lng": -72.69338931922722
+            }
+        },
+        {
+            "id": 4,
+            "greenTime": 7000,
+            "redTime": 8500,
+            "amberTime": 2500,
+            "initialState": "red",
+            "location": {
+                "lat": -12.863937960748235,
+                "lng": -72.69339766329347
+            }
+        },
+        {
+            "id": 7,
+            "greenTime": 3000,
+            "redTime": 5500,
+            "amberTime": 1200,
+            "initialState": "red",
+            "location": {
+                "lat": -12.863972242616313,
+                "lng": -72.69335893965403
+            }
+        },
+        {
+            "id": 8,
+            "greenTime": 6000,
+            "redTime": 8500,
+            "amberTime": 2500,
+            "initialState": "red",
+            "location": {
+                "lat": -12.863931920859192,
+                "lng": -72.69336732338571
+            }
+        }
+    ],
+    "intersection4": [
+        {
+            "id": 11,
+            "greenTime": 4500,
+            "redTime": 6500,
+            "amberTime": 1500,
+            "initialState": "red",
+            "location": {
+                "lat": -12.863761662228642,
+                "lng": -72.69230114049736
+            }
+        },
+        {
+            "id": 12,
+            "greenTime": 13500,
+            "redTime": 17500,
+            "amberTime": 3000,
+            "initialState": "red",
+            "location": {
+                "lat": -12.863721545786886,
+                "lng": -72.69231055558063
+            }
+        },
+        {
+            "id": 15,
+            "greenTime": 5500,
+            "redTime": 7500,
+            "amberTime": 2000,
+            "initialState": "red",
+            "location": {
+                "lat": -12.863755598213071,
+                "lng": -72.69227067939589
+            }
+        },
+        {
+            "id": 16,
+            "greenTime": 11000,
+            "redTime": 13500,
+            "amberTime": 1500,
+            "initialState": "red",
+            "location": {
+                "lat": -12.86371549095197,
+                "lng": -72.69228014059594
+            }
+        }
+    ]
+}
