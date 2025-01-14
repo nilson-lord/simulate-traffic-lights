@@ -4,9 +4,7 @@ async function initMap() {
         center: { lat: -12.863298, lng: -72.693054 },
         mapTypeId: "terrain",
     });
-
-    // Delimitar el área
-    const simulationArea = new google.maps.Polygon({
+        const simulationArea = new google.maps.Polygon({
         paths: [
             { lat: -12.862485, lng: -72.694245 },
             { lat: -12.862098956210257, lng: -72.6921365606499 },
@@ -21,25 +19,24 @@ async function initMap() {
     });
 
     simulationArea.setMap(map);
-
-    const lanes = await drawLanes(map);
-
-    const intersections = findIntersections(lanes);
-    const trafficLights = await addTrafficLightsAtIntersections(map, intersections);
-
-    simulateRandomTraffic(map, lanes, trafficLights);
+    simulationArea.setMap(map);
+    const carriles = await drawLanes(map);
+    findIntersections(carriles);
+    addTrafficLightsAtIntersections(map);
+    simulateRandomTraffic(map, carriles);
 }
 
 async function drawLanes(map) {
     try {
         const response = await fetch("lanes.json");
         const data = await response.json();
+        const carriles = data;  
 
-        const lanes = data.lanes;
+        Object.keys(carriles).forEach((key) => {
+            const lane = carriles[key];
 
-        lanes.forEach((lane) => {
             const laneLine = new google.maps.Polyline({
-                path: lane,
+                path: lane.coordinates,
                 geodesic: true,
                 strokeColor: "#FFFFFF",
                 strokeOpacity: 1.0,
@@ -47,11 +44,29 @@ async function drawLanes(map) {
             });
 
             laneLine.setMap(map);
+
+            const midPointIndex = Math.floor(lane.coordinates.length / 2);
+            const midPoint = lane.coordinates[midPointIndex];
+
+            const label = new google.maps.Marker({
+                position: midPoint,
+                map: map,
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 0,
+                },
+                label: {
+                    text: `Carril ${key}`,
+                    color: "black",
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                },
+            });
         });
 
-        return lanes;
+        return Object.values(carriles).map(lane => lane.coordinates);  
     } catch (error) {
-        console.error("Error loading lanes:", error);
+        console.error("Error al cargar los carriles:", error);
         return [];
     }
 }
@@ -68,13 +83,11 @@ function calculateIntersection(line1, line2) {
     }
 
     const t =
-        ((p1.lat - p3.lat) * (p3.lng - p4.lng) -
-            (p1.lng - p3.lng) * (p3.lat - p4.lat)) /
+        ((p1.lat - p3.lat) * (p3.lng - p4.lng) - (p1.lng - p3.lng) * (p3.lat - p4.lat)) /
         denominator;
 
     const u =
-        -(((p1.lat - p2.lat) * (p1.lng - p3.lng) -
-            (p1.lng - p2.lng) * (p1.lat - p3.lat)) /
+        -(((p1.lat - p2.lat) * (p1.lng - p3.lng) - (p1.lng - p2.lng) * (p1.lat - p3.lat)) /
             denominator);
 
     if (t >= 0 && t <= 1 && u >= 0 && u <= 1) {
@@ -102,9 +115,8 @@ function findIntersections(lanes) {
     return intersections;
 }
 
-async function addTrafficLightsAtIntersections(map, intersections) {
+async function addTrafficLightsAtIntersections(map) {
     const config = await fetch("trafficLights.json").then((res) => res.json());
-
     const trafficLights = [];
 
     for (const intersectionKey in config) {
@@ -129,7 +141,7 @@ async function addTrafficLightsAtIntersections(map, intersections) {
                 trafficLights.push({
                     id: lightConfig.id,
                     position: lightConfig.location,
-                    state: lightConfig.initialState, // Se establece el estado inicial
+                    state: lightConfig.initialState, 
                     times: {
                         green: lightConfig.greenTime,
                         red: lightConfig.redTime,
@@ -141,10 +153,9 @@ async function addTrafficLightsAtIntersections(map, intersections) {
         }
     }
 
-    // Configurar el estado inicial correcto desde el JSON
     trafficLights.forEach((light) => {
-        let currentState = light.state; // Utiliza el estado inicial desde el JSON
 
+        let currentState = light.state; 
         function changeLightState() {
             if (currentState === "red") {
                 currentState = "green";
@@ -170,7 +181,6 @@ async function addTrafficLightsAtIntersections(map, intersections) {
             }
         }
 
-        // Iniciar el estado inicial después de agregar todos los semáforos al mapa
         setTimeout(changeLightState, light.times[currentState]);
     });
 
@@ -179,7 +189,7 @@ async function addTrafficLightsAtIntersections(map, intersections) {
 
 let vehicles = [];
 
-function simulateRandomTraffic(map, lanes, trafficLights) {
+function simulateRandomTraffic(map, lanes) {
     const vehicleIcons = ["images/car3.png", "images/car2.png"];
 
     setInterval(() => {
@@ -197,7 +207,7 @@ function simulateRandomTraffic(map, lanes, trafficLights) {
         });
 
         vehicles.push(vehicle);
-        moveVehicle(vehicle, start, end, trafficLights);
+        moveVehicle(vehicle, start, end);
     }, 2000);
 }
 
@@ -222,25 +232,20 @@ function closestTrafficLight(position, trafficLights) {
     return closest;
 }
 
-function moveVehicle(vehicle, start, end, trafficLights) {
+function moveVehicle(vehicle, start, end) {
     let progress = 0;
     const speed = 0.002;
+
     const interval = setInterval(() => {
         const position = {
             lat: start.lat + progress * (end.lat - start.lat),
             lng: start.lng + progress * (end.lng - start.lng),
         };
 
-        const closestLight = closestTrafficLight(position, trafficLights);
-
-        if (getDistance(position, closestLight.position) < 0.0001 && (closestLight.state === "red" || closestLight.state === "amber")) {
-            return;
-        }
-
         if (progress < 1) {
             progress += speed;
             vehicle.setPosition(position);
-        } else {
+        } else if (progress >= 1) {
             clearInterval(interval);
             vehicle.setMap(null);
         }
