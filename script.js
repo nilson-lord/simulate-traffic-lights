@@ -1,12 +1,10 @@
 async function initMap() {
     const map = new google.maps.Map(document.getElementById("map"), {
-        zoom: 18,
+        zoom: 19,
         center: { lat: -12.863298, lng: -72.693054 },
         mapTypeId: "terrain",
     });
-
-    // Delimitar el área
-    const simulationArea = new google.maps.Polygon({
+        const simulationArea = new google.maps.Polygon({
         paths: [
             { lat: -12.862485, lng: -72.694245 },
             { lat: -12.862098956210257, lng: -72.6921365606499 },
@@ -21,26 +19,24 @@ async function initMap() {
     });
 
     simulationArea.setMap(map);
-
-    const lanes = await drawLanes(map);
-
-    const intersections = findIntersections(lanes);
-    const trafficLights = await addTrafficLightsAtIntersections(map, intersections);
-
-    simulateRandomTraffic(map, lanes, trafficLights);
+    simulationArea.setMap(map);
+    const carriles = await drawLanes(map);
+    findIntersections(carriles);
+    addTrafficLightsAtIntersections(map);
+    simulateRandomTraffic(map, carriles);
 }
-
 
 async function drawLanes(map) {
     try {
         const response = await fetch("lanes.json");
         const data = await response.json();
+        const carriles = data;  
 
-        const lanes = data.lanes;
+        Object.keys(carriles).forEach((key) => {
+            const lane = carriles[key];
 
-        lanes.forEach((lane) => {
             const laneLine = new google.maps.Polyline({
-                path: lane,
+                path: lane.coordinates,
                 geodesic: true,
                 strokeColor: "#FFFFFF",
                 strokeOpacity: 1.0,
@@ -48,15 +44,32 @@ async function drawLanes(map) {
             });
 
             laneLine.setMap(map);
+
+            const midPointIndex = Math.floor(lane.coordinates.length / 2);
+            const midPoint = lane.coordinates[midPointIndex];
+
+            const label = new google.maps.Marker({
+                position: midPoint,
+                map: map,
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 0,
+                },
+                label: {
+                    text: `Carril ${key}`,
+                    color: "black",
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                },
+            });
         });
 
-        return lanes;
+        return Object.values(carriles).map(lane => lane.coordinates);  
     } catch (error) {
-        console.error("Error loading lanes:", error);
+        console.error("Error al cargar los carriles:", error);
         return [];
     }
 }
-
 
 function calculateIntersection(line1, line2) {
     const [p1, p2] = line1;
@@ -70,13 +83,11 @@ function calculateIntersection(line1, line2) {
     }
 
     const t =
-        ((p1.lat - p3.lat) * (p3.lng - p4.lng) -
-            (p1.lng - p3.lng) * (p3.lat - p4.lat)) /
+        ((p1.lat - p3.lat) * (p3.lng - p4.lng) - (p1.lng - p3.lng) * (p3.lat - p4.lat)) /
         denominator;
 
     const u =
-        -(((p1.lat - p2.lat) * (p1.lng - p3.lng) -
-            (p1.lng - p2.lng) * (p1.lat - p3.lat)) /
+        -(((p1.lat - p2.lat) * (p1.lng - p3.lng) - (p1.lng - p2.lng) * (p1.lat - p3.lat)) /
             denominator);
 
     if (t >= 0 && t <= 1 && u >= 0 && u <= 1) {
@@ -104,42 +115,47 @@ function findIntersections(lanes) {
     return intersections;
 }
 
-async function addTrafficLightsAtIntersections(map, intersections) {
-    const config = await fetch("duration_light.json").then((res) => res.json());
+async function addTrafficLightsAtIntersections(map) {
+    const config = await fetch("trafficLights.json").then((res) => res.json());
+    const trafficLights = [];
 
-    const trafficLights = intersections.map((intersection, index) => {
-        const lightConfig = config.trafficLights[index];
-        const marker = new google.maps.Marker({
-            position: intersection,
-            map,
-            icon: {
-                url: `images/red-light.png`,
-                scaledSize: new google.maps.Size(16, 16),
-            },
-            label: {
-                text: String(lightConfig.id),
-                color: "black",
-                fontSize: "14px",
-                fontWeight: "bold",
-            },
-        });
+    for (const intersectionKey in config) {
+        if (config.hasOwnProperty(intersectionKey)) {
+            const intersection = config[intersectionKey];
+            intersection.forEach((lightConfig) => {
+                const marker = new google.maps.Marker({
+                    position: lightConfig.location,
+                    map,
+                    icon: {
+                        url: `images/${lightConfig.initialState}-light.png`,
+                        scaledSize: new google.maps.Size(16, 16),
+                    },
+                    label: {
+                        text: String(lightConfig.id),
+                        color: "black",
+                        fontSize: "14px",
+                        fontWeight: "bold",
+                    },
+                });
 
-        return {
-            id: lightConfig.id,
-            position: intersection,
-            state: "red",
-            times: {
-                green: lightConfig.greenTime,
-                red: lightConfig.redTime,
-                amber: lightConfig.amberTime,
-            },
-            marker,
-        };
-    });
+                trafficLights.push({
+                    id: lightConfig.id,
+                    position: lightConfig.location,
+                    state: lightConfig.initialState, 
+                    times: {
+                        green: lightConfig.greenTime,
+                        red: lightConfig.redTime,
+                        amber: lightConfig.amberTime,
+                    },
+                    marker,
+                });
+            });
+        }
+    }
 
     trafficLights.forEach((light) => {
-        let currentState = "red";
 
+        let currentState = light.state; 
         function changeLightState() {
             if (currentState === "red") {
                 currentState = "green";
@@ -165,16 +181,15 @@ async function addTrafficLightsAtIntersections(map, intersections) {
             }
         }
 
-        changeLightState();
+        setTimeout(changeLightState, light.times[currentState]);
     });
 
     return trafficLights;
 }
 
-
 let vehicles = [];
 
-function simulateRandomTraffic(map, lanes, trafficLights) {
+function simulateRandomTraffic(map, lanes) {
     const vehicleIcons = ["images/car3.png", "images/car2.png"];
 
     setInterval(() => {
@@ -192,20 +207,45 @@ function simulateRandomTraffic(map, lanes, trafficLights) {
         });
 
         vehicles.push(vehicle);
-        moveVehicle(vehicle, start, end, trafficLights);
+        moveVehicle(vehicle, start, end);
     }, 2000);
 }
 
-function moveVehicle(vehicle, start, end, trafficLights) {
+function getDistance(point1, point2) {
+    return Math.sqrt(
+        Math.pow(point2.lat - point1.lat, 2) + Math.pow(point2.lng - point1.lng, 2)
+    );
+}
+
+function closestTrafficLight(position, trafficLights) {
+    let closest = null;
+    let minDistance = Infinity;
+
+    trafficLights.forEach((light) => {
+        const distance = getDistance(position, light.position);
+        if (distance < minDistance) {
+            closest = light;
+            minDistance = distance;
+        }
+    });
+
+    return closest;
+}
+
+function moveVehicle(vehicle, start, end) {
     let progress = 0;
     const speed = 0.002;
+
     const interval = setInterval(() => {
+        const position = {
+            lat: start.lat + progress * (end.lat - start.lat),
+            lng: start.lng + progress * (end.lng - start.lng),
+        };
+
         if (progress < 1) {
             progress += speed;
-            const lat = start.lat + progress * (end.lat - start.lat);
-            const lng = start.lng + progress * (end.lng - start.lng);
-            vehicle.setPosition({ lat, lng });
-        } else {
+            vehicle.setPosition(position);
+        } else if (progress >= 1) {
             clearInterval(interval);
             vehicle.setMap(null);
         }
